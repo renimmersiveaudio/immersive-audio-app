@@ -1,0 +1,279 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Immersive Audio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,300;0,400;0,600;1,300&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --portal-green: #14B8A6;
+        --dark-magenta: #8B008B;
+        --midnight: #02040a; 
+        --deep-blue: #02040a;
+        --deep-violet: #2e1065;
+        --neon-pink: #ff00ff;
+        --neon-red: #ff3131;
+        --neon-blue: #00ffff;
+      }
+
+      body {
+        font-family: 'Inter', sans-serif;
+        background: var(--midnight);
+        color: #e2e8f0;
+        overflow-x: hidden;
+        margin: 0;
+        min-height: 100vh;
+      }
+
+      .font-serif {
+        font-family: 'Spectral', serif;
+      }
+
+      /* Dynamic Sonic Background Layers */
+      .sonic-container {
+        position: fixed;
+        inset: 0;
+        z-index: -15; /* Moved above nebula and energy glows */
+        overflow: hidden;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .nebula-bg {
+        position: fixed;
+        inset: 0;
+        background: 
+          radial-gradient(circle at 20% 30%, rgba(139, 0, 139, 0.1) 0%, transparent 60%),
+          radial-gradient(circle at 80% 70%, rgba(20, 184, 166, 0.05) 0%, transparent 60%),
+          #02040a;
+        z-index: -30;
+      }
+
+      /* The Speaker Core - High Contrast */
+      .speaker-core {
+        position: relative;
+        width: 450px;
+        height: 450px;
+        border-radius: 50%;
+        background: 
+          radial-gradient(circle at center, 
+            #000 0%, 
+            #1a001a 40%, 
+            #330033 60%, 
+            rgba(139, 0, 139, 0.4) 85%, 
+            transparent 100%
+          );
+        border: 4px solid rgba(255, 0, 255, 0.05);
+        box-shadow: 
+          0 0 120px rgba(139, 0, 139, 0.4),
+          inset 0 0 60px rgba(0, 0, 0, 0.8);
+        animation: speaker-thump 2s infinite ease-in-out;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .speaker-cone {
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(circle, #fff 0%, var(--neon-pink) 40%, #8b008b 70%, #200020 100%);
+        box-shadow: 
+          0 0 40px var(--neon-pink),
+          0 0 80px rgba(255, 0, 255, 0.4);
+        z-index: 2;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+      }
+
+      .speaker-dust-cap {
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: #111;
+        border-radius: 50%;
+        box-shadow: inset 0 0 10px rgba(255, 255, 255, 0.1);
+        z-index: 3;
+      }
+
+      /* Equalizer Rings */
+      .eq-ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 2px solid transparent;
+        transition: all 0.5s ease;
+      }
+
+      /* Conic Equalizer Bars */
+      .eq-bars {
+        position: absolute;
+        inset: -40px;
+        border-radius: 50%;
+        background: conic-gradient(
+          transparent 0deg, 
+          rgba(255, 0, 255, 0.2) 10deg, 
+          transparent 20deg
+        );
+        background-repeat: repeat;
+        mask-image: radial-gradient(circle, transparent 65%, black 66%, black 70%, transparent 71%);
+        animation: spin-slow 15s linear infinite;
+      }
+
+      .eq-ring-1 { width: 550px; height: 550px; border: 1px dashed rgba(255, 255, 255, 0.1); animation: spin-slow 40s linear infinite; }
+      .eq-ring-2 { width: 650px; height: 650px; border: 1px dotted rgba(255, 0, 255, 0.1); animation: spin-slow 60s linear infinite reverse; }
+
+      /* Side Energy Glows */
+      .energy-glow-left {
+        position: fixed;
+        top: 50%;
+        left: -5%;
+        width: 40vw;
+        height: 80vh;
+        background: radial-gradient(circle, rgba(255, 49, 49, 0.15) 0%, transparent 70%);
+        transform: translateY(-50%);
+        filter: blur(100px);
+        z-index: -20;
+      }
+
+      .energy-glow-right {
+        position: fixed;
+        top: 50%;
+        right: -5%;
+        width: 40vw;
+        height: 80vh;
+        background: radial-gradient(circle, rgba(0, 255, 255, 0.15) 0%, transparent 70%);
+        transform: translateY(-50%);
+        filter: blur(100px);
+        z-index: -20;
+      }
+
+      /* High Intensity Electric Arcs */
+      .electric-arc {
+        position: absolute;
+        top: 50%;
+        height: 2px;
+        opacity: 0.6;
+        filter: blur(1px);
+        z-index: -10;
+      }
+      .arc-red {
+        left: 0;
+        width: 45vw;
+        background: linear-gradient(to right, transparent, var(--neon-red), white);
+        box-shadow: 0 0 30px var(--neon-red), 0 0 60px rgba(255, 49, 49, 0.4);
+        animation: arc-shiver 0.15s infinite;
+        transform: rotate(-5deg) translateY(-20px);
+      }
+      .arc-blue {
+        right: 0;
+        width: 45vw;
+        background: linear-gradient(to left, transparent, var(--neon-blue), white);
+        box-shadow: 0 0 30px var(--neon-blue), 0 0 60px rgba(0, 255, 255, 0.4);
+        animation: arc-shiver 0.1s infinite reverse;
+        transform: rotate(5deg) translateY(20px);
+      }
+
+      @keyframes speaker-thump {
+        0%, 100% { transform: scale(1); filter: brightness(1); }
+        50% { transform: scale(1.04); filter: brightness(1.3); }
+      }
+
+      @keyframes arc-shiver {
+        0% { transform: translateY(-20px) rotate(-5deg) scaleX(1) opacity(0.6); }
+        50% { transform: translateY(-25px) rotate(-6deg) scaleX(1.05) opacity(0.8); }
+        100% { transform: translateY(-18px) rotate(-4deg) scaleX(0.98) opacity(0.6); }
+      }
+
+      @keyframes spin-slow {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+      }
+
+      /* Portal UI Elements */
+      .portal-field {
+        background: rgba(5, 7, 10, 0.6);
+        backdrop-filter: blur(30px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 3rem;
+        box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5);
+        transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .portal-field:hover {
+        border-color: rgba(20, 184, 166, 0.25);
+        background: rgba(5, 7, 10, 0.7);
+        box-shadow: 0 15px 50px 0 rgba(0, 0, 0, 0.6);
+      }
+
+      .glass-button {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(10px);
+        transition: all 0.5s ease;
+      }
+
+      .glass-button:hover {
+        background: rgba(20, 184, 166, 0.15);
+        border-color: var(--portal-green);
+        box-shadow: 0 0 25px rgba(20, 184, 166, 0.3);
+      }
+
+      .glow-text {
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+      }
+
+      @keyframes breath-pulse {
+        0%, 100% { opacity: 0.4; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.03); }
+      }
+
+      .animate-breath {
+        animation: breath-pulse 6s infinite ease-in-out;
+      }
+
+      .no-scrollbar::-webkit-scrollbar {
+        display: none;
+      }
+      .no-scrollbar {
+        -ms-overflow-style: none;
+        scrollbar-width: none;
+      }
+    </style>
+    <script type="importmap">
+    {
+      "imports": {
+        "react": "https://esm.sh/react@^19.2.3",
+        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
+        "react/": "https://esm.sh/react@^19.2.3/",
+        "@google/genai": "https://esm.sh/@google/genai@^1.38.0",
+        "lucide-react": "https://esm.sh/lucide-react@^0.562.0"
+      }
+    }
+    </script>
+  </head>
+  <body>
+    <!-- Dynamic Sonic Background Layers -->
+    <div class="sonic-container">
+      <div class="speaker-core">
+        <div class="speaker-cone"></div>
+        <div class="speaker-dust-cap"></div>
+        <div class="eq-bars"></div>
+      </div>
+      <div class="eq-ring eq-ring-1"></div>
+      <div class="eq-ring eq-ring-2"></div>
+      <div class="electric-arc arc-red"></div>
+      <div class="electric-arc arc-blue"></div>
+    </div>
+    <div class="energy-glow-left"></div>
+    <div class="energy-glow-right"></div>
+    <div class="nebula-bg"></div>
+
+    <div id="root"></div>
+  </body>
+</html>

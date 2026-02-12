@@ -1,0 +1,7 @@
+{
+  "name": "Immersive Audio - Sound Healing Portal",
+  "description": "An immersive Audio journey platform for regulating the nervous system through 432Hz retuning and cosmic protocols.",
+  "requestFramePermissions": [
+    "microphone"
+  ]
+}
