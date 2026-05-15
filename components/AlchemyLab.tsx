@@ -66,6 +66,11 @@ interface AlchemyLabProps {
   setCurrentTrackIndex: (i: number) => void;
   globalSeedPreferences: GlobalSeedPreferences;
   onGlobalSeedPreferencesChange: (prefs: GlobalSeedPreferences) => void;
+  youtubeSearchQuery: string;
+  setYoutubeSearchQuery: (q: string) => void;
+  youtubeResults: any[];
+  isSearching: boolean;
+  handleYoutubeSearch: () => void;
 }
 
 const AlchemyLab: React.FC<AlchemyLabProps> = ({ 
@@ -88,7 +93,12 @@ const AlchemyLab: React.FC<AlchemyLabProps> = ({
   currentTrackIndex,
   setCurrentTrackIndex,
   globalSeedPreferences,
-  onGlobalSeedPreferencesChange
+  onGlobalSeedPreferencesChange,
+  youtubeSearchQuery,
+  setYoutubeSearchQuery,
+  youtubeResults,
+  isSearching,
+  handleYoutubeSearch
 }) => {
   const [frequency] = useState<'440Hz' | '432Hz'>('432Hz');
   const [protocol, setProtocol] = useState<JourneyProtocol>(JourneyProtocol.GroundedResonance);
@@ -627,6 +637,51 @@ const AlchemyLab: React.FC<AlchemyLabProps> = ({
             </>
           )}
         </section>
+      </div>
+
+      {/* YouTube Search */}
+      <div className="mb-8 p-6 bg-white/5 border border-white/10 rounded-3xl">
+        <h3 className="text-white text-lg mb-4">🌌 Search YouTube for Conscious Music</h3>
+        
+        <div className="flex gap-3">
+          <input
+            type="text"
+            placeholder="Search 432hz, 528hz, healing music, meditation..."
+            value={youtubeSearchQuery}
+            onChange={(e) => setYoutubeSearchQuery(e.target.value)}
+            onKeyPress={(e) => e.key === 'Enter' && handleYoutubeSearch()}
+            className="flex-1 bg-white/10 border border-white/20 rounded-full px-6 py-4 text-white placeholder-white/50 focus:outline-none focus:border-[#14B8A6]"
+          />
+          <button 
+            onClick={handleYoutubeSearch}
+            disabled={isSearching}
+            className="px-8 py-4 bg-[#14B8A6] hover:bg-[#0F766E] rounded-full font-medium transition-all disabled:opacity-50"
+          >
+            {isSearching ? "Searching..." : "Search"}
+          </button>
+        </div>
+
+        {/* Results */}
+        {youtubeResults.length > 0 && (
+          <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4 max-h-96 overflow-y-auto">
+            {youtubeResults.map((video: any) => (
+              <div key={video.id} className="bg-white/5 rounded-2xl p-3 flex gap-4 hover:bg-white/10 transition-all">
+                <img 
+                  src={video.thumbnail} 
+                  alt={video.title}
+                  className="w-28 h-20 object-cover rounded-xl"
+                />
+                <div className="flex-1">
+                  <p className="text-white text-sm line-clamp-2">{video.title}</p>
+                  <p className="text-white/50 text-xs mt-1">{video.channelTitle}</p>
+                  <button className="mt-2 text-xs text-[#14B8A6] hover:underline">
+                    Add to Session
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div ref={resonanceRef} className="pt-12 scroll-mt-24">

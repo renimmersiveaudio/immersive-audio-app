@@ -15,6 +15,7 @@ import StarLanguages from './components/StarLanguages';
 import MinimizedPlayer from './components/MinimizedPlayer';
 import { AppView, JourneyProtocol, MorphLevel, Track, JourneySession, CurrentVibration, DesiredResonance, MoodEntry, MomentSignal, StellarSignature, InnerEchoPlan, GlobalSeedPreferences } from './types';
 import { generateJourneyPlaylist, getSessionIntro, generateAlchemyRecipe } from './services/geminiService';
+import { youtubeService } from './services/youtube';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<AppView>(AppView.PortalGate);
@@ -35,6 +36,11 @@ const App: React.FC = () => {
   const [pendingInnerEchoRedirect, setPendingInnerEchoRedirect] = useState(false);
   const [echoPlan, setEchoPlan] = useState<InnerEchoPlan | null>(null);
   
+    // YouTube Search State
+  const [youtubeSearchQuery, setYoutubeSearchQuery] = useState('');
+  const [youtubeResults, setYoutubeResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+
   // Global Audio State
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
@@ -202,6 +208,21 @@ const App: React.FC = () => {
     }
   };
 
+  const handleYoutubeSearch = async () => {
+    if (!youtubeSearchQuery.trim()) return;
+    
+    setIsSearching(true);
+    try {
+      const results = await youtubeService.search(youtubeSearchQuery + " 432hz OR 528hz OR healing OR meditation");
+      setYoutubeResults(results);
+      console.log("YouTube Results:", results);
+    } catch (error) {
+      console.error("YouTube search failed:", error);
+      alert("Search failed. Check console for details.");
+    }
+    setIsSearching(false);
+  };
+
   const renderView = () => {
     switch (currentView) {
       case AppView.PortalGate:
@@ -294,6 +315,11 @@ const App: React.FC = () => {
             setCurrentTrackIndex={setCurrentTrackIndex}
             globalSeedPreferences={globalSeedPreferences}
             onGlobalSeedPreferencesChange={setGlobalSeedPreferences}
+            youtubeSearchQuery={youtubeSearchQuery}
+            setYoutubeSearchQuery={setYoutubeSearchQuery}
+            youtubeResults={youtubeResults}
+            isSearching={isSearching}
+            handleYoutubeSearch={handleYoutubeSearch}
           />
         );
       case AppView.InnerEcho:
